@@ -17,8 +17,8 @@
     <!--&lt;!&ndash; 配置资源映射 &ndash;&gt;-->
     <!--<mvc:resources location="/css/" mapping="/css/**"/>-->
     <!--<mvc:resources location="/js/" mapping="/js/**"/>-->
-    <!--&lt;!&ndash; 引用dubbo服务 &ndash;&gt;-->
-    <!--<dubbo:application name="FXMall-manager-web"/>-->
-    <!--<dubbo:registry protocol="zookeeper" address="192.168.25.167:2181"/>-->
-    <!--<dubbo:reference interface="com.fx.service.ItemService" id="itemService"/>-->
+    <!-- 引用dubbo服务 -->
+    <dubbo:application name="FXMall-manager-web"/>
+    <dubbo:registry protocol="zookeeper" address="127.0.0.1:2181"/>
+    <dubbo:reference interface="com.fx.service.ItemService" id="itemService"/>
 </beans>

@@ -10,11 +10,11 @@
 
     <!-- 发布dubbo服务 -->
     <!-- 提供方应用信息，用于计算依赖关系 -->
-    <dubbo:application name="taotao-manager" />
+    <dubbo:application name="FXMall-manager"/>
     <!-- 注册中心的地址 -->
-    <dubbo:registry protocol="zookeeper" address="192.168.25.167:2181" />
+    <dubbo:registry protocol="zookeeper" address="127.0.0.1:2181"/>
     <!-- 用dubbo协议在20880端口暴露服务 -->
-    <dubbo:protocol name="dubbo" port="20880" />
+    <dubbo:protocol name="dubbo" port="20880"/>
     <!-- 声明需要暴露的服务接口 -->
-    <!--<dubbo:service interface="com.fx.service.ItemService" ref="itemServiceImpl" timeout="300000"/>-->
+    <dubbo:service interface="com.fx.service.ItemService" ref="itemServiceImpl" timeout="300000"/>
 </beans>
