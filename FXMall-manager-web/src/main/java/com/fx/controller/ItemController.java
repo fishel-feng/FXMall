@@ -1,5 +1,6 @@
 package com.fx.controller;
 
+import com.fx.common.pojo.EasyUIDataGridResult;
 import com.fx.pojo.TbItem;
 import com.fx.service.ItemService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,5 +20,12 @@ public class ItemController {
     public TbItem getItemById(@PathVariable Long itemId) {
         TbItem tbItem = itemService.getItemById(itemId);
         return tbItem;
+    }
+
+    @RequestMapping("/item/list")
+    @ResponseBody
+    public EasyUIDataGridResult getItemList(Integer page, Integer rows) {
+        EasyUIDataGridResult result = itemService.getItemList(page, rows);
+        return result;
     }
 }
