@@ -21,4 +21,5 @@
     <dubbo:application name="FXMall-manager-web"/>
     <dubbo:registry protocol="zookeeper" address="127.0.0.1:2181"/>
     <dubbo:reference interface="com.fx.service.ItemService" id="itemService"/>
+    <dubbo:reference interface="com.fx.service.ItemCatService" id="itemCatService"/>
 </beans>
