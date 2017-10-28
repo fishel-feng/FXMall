@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
 const Goods = require('../models/goods');
+const User = require('../models/user');
 
 mongoose.connect('mongodb://127.0.0.1:27017/FXMall');
 
@@ -71,6 +72,79 @@ router.get('/', (req, res, next) => {
           list: doc
         }
       });
+    }
+  });
+});
+
+router.post('/addCart', (req, res, next) => {
+  let userId = '100000077',
+    productId = req.body.productId;
+  User.findOne({
+    userId: userId
+  }, (err, userDoc) => {
+    if (err) {
+      res.json({
+        status: '1',
+        msg: err.message
+      });
+    } else {
+      console.log(userDoc);
+      if (userDoc) {
+        let goodsItem = '';
+        userDoc.cartList.forEach(item => {
+          if (item.productId === productId) {
+            goodsItem = item;
+            item.productNum++;
+          }
+        });
+        if (goodsItem) {
+          userDoc.save((err2, doc2) => {
+            if (err2) {
+              res.json({
+                status: '1',
+                msg: err2.message
+              });
+            } else {
+              res.json({
+                status: '0',
+                msg: '',
+                result: 'suc'
+              });
+            }
+          });
+        } else {
+          Goods.findOne({
+            productId: productId
+          }, (err1, doc) => {
+            if (err1) {
+              res.json({
+                status: '1',
+                msg: err1.message
+              });
+            } else {
+              if (doc) {
+                doc.productNum = 1;
+                doc.checked = 1;
+                userDoc.cartList.push(doc);
+                userDoc.save((err2, doc2) => {
+                  if (err2) {
+                    res.json({
+                      status: '1',
+                      msg: err2.message
+                    });
+                  } else {
+                    res.json({
+                      status: '0',
+                      msg: '',
+                      result: 'suc'
+                    });
+                  }
+                });
+              }
+            }
+          });
+        }
+      }
     }
   });
 });
