@@ -18,7 +18,7 @@ mongoose.connection.on('disconnected', () => {
   console.log('数据库断开');
 });
 
-router.get('/', (req, res, next) => {
+router.get('/list', (req, res, next) => {
   let page = parseInt(req.param('page'));
   let pageSize = parseInt(req.param('pageSize'));
   let priceLeval = req.param('priceLeval')

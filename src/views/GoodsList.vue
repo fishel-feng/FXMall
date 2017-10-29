@@ -1,15 +1,28 @@
 <template>
 <div>
+  <symbol id="icon-arrow-short" viewBox="0 0 25 32">
+      <title>arrow-short</title>
+      <path class="path1" d="M24.487 18.922l-1.948-1.948-8.904 8.904v-25.878h-2.783v25.878l-8.904-8.904-1.948 1.948 12.243 12.243z"></path>
+  </symbol>
+  <symbol id="icon-status-ok" viewBox="0 0 32 32">
+    <title>status-ok</title>
+      <path class="path1" d="M22.361 10.903l-9.71 9.063-2.998-2.998c-0.208-0.209-0.546-0.209-0.754 0s-0.208 0.546 0 0.754l3.363 3.363c0.104 0.104 0.241 0.156 0.377 0.156 0.131 0 0.261-0.048 0.364-0.143l10.087-9.414c0.215-0.201 0.227-0.539 0.026-0.754s-0.539-0.226-0.754-0.026z"></path>
+      <path class="path2" d="M16 30.933c-8.234 0-14.933-6.699-14.933-14.933s6.699-14.933 14.933-14.933c8.234 0 14.933 6.699 14.933 14.933s-6.699 14.933-14.933 14.933zM16 0c-8.822 0-16 7.178-16 16 0 8.823 7.178 16 16 16s16-7.177 16-16c0-8.822-7.178-16-16-16z"></path>
+  </symbol>
   <nav-header></nav-header>
   <nav-bread>
-    <span></span>
+    <span>Goods</span>
   </nav-bread>
   <div class="accessory-result-page accessory-page">
     <div class="container">
       <div class="filter-nav">
         <span class="sortby">Sort by:</span>
         <a href="javascript:void(0)" class="default cur">Default</a>
-        <a href="javascript:void(0)" class="price" @click="sortGoods">Price <svg class="icon icon-arrow-short"><use xlink:href="#icon-arrow-short"></use></svg></a>
+        <a href="javascript:void(0)" class="price" @click="sortGoods">Price
+          <svg class="icon-arrow-short" :class="{'sort-up':!sortFlag}">
+            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-arrow-short"></use>
+          </svg>
+        </a>
         <a href="javascript:void(0)" class="filterby stopPop" @click="showFilterPop">Filter by</a>
       </div>
       <div class="accessory-result">
@@ -50,6 +63,26 @@
     </div>
   </div>
   <div class="md-overlay" v-show="overLayFlag" @click="closePop"></div>
+  <modal :mdShow="mdShow" @close="closeModal">
+    <p slot="message">
+      加入购物车前请登录
+    </p>
+    <div slot="btnGroup">
+      <a class="btn btn--m" href="javascript:;" @click="mdShow = false">关闭</a>
+    </div>
+  </modal>
+  <modal :mdShow="mdShowCart" @close="closeModal">
+    <p slot="message">
+      <svg class="icon-status-ok">
+        <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-status-ok"></use>
+      </svg>
+      <span>加入购物车成功</span>
+    </p>
+    <div slot="btnGroup">
+      <a class="btn btn--m" href="javascript:;" @click="mdShowCart = false">继续购物</a>
+      <router-link class="btn btn--m" href="javascript:;" to="/cart">查看购物车</router-link>
+    </div>
+  </modal>
   <nav-footer></nav-footer>
 </div>
 </template>
@@ -62,6 +95,7 @@ import './../assets/css/base.css'
 import NavHeader from '@/components/NavHeader.vue'
 import NavFooter from '@/components/NavFooter.vue'
 import NavBread from '@/components/NavBread.vue'
+import Modal from '@/components/Modal.vue'
 import axios from 'axios'
 export default {
   data () {
@@ -72,6 +106,8 @@ export default {
       pageSize: 8,
       busy: true,
       loading: false,
+      mdShow: false,
+      mdShowCart: false,
       priceFilter: [
         {
           startPrice: '0.00',
@@ -98,7 +134,8 @@ export default {
   components: {
     NavHeader,
     NavFooter,
-    NavBread
+    NavBread,
+    Modal
   },
   mounted () {
     this.getGoodsList()
@@ -112,7 +149,7 @@ export default {
         priceLeval: this.priceChecked
       }
       this.loading = true
-      axios.get('/goods', {
+      axios.get('/goods/list', {
         params: param
       }).then(response => {
         let res = response.data
@@ -150,11 +187,11 @@ export default {
       axios.post('/goods/addCart', {
         productId: productId
       }).then(res => {
-        console.log(res)
+        // console.log(res)
         if (res.data.status === '0') {
-          alert('success')
+          this.mdShowCart = true
         } else {
-          alert(res.msg)
+          this.mdShow = true
         }
       })
     },
@@ -171,6 +208,9 @@ export default {
     closePop () {
       this.filterBy = false
       this.overLayFlag = false
+    },
+    closeModal () {
+      this.mdShow = false
     }
   }
 }

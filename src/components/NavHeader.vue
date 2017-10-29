@@ -17,14 +17,14 @@
         <!--<a href="/" class="navbar-link">我的账户</a>-->
         <span class="navbar-link" v-if="nickName" v-text="nickName"></span>
         <a href="javascript:void(0)" class="navbar-link" v-if="!nickName" @click="loginModalFlag=true">Login</a>
-        <a href="javascript:void(0)" class="navbar-link" v-if="nickName">Logout</a>
+        <a href="javascript:void(0)" class="navbar-link" v-if="nickName" @click="logout">Logout</a>
         <div class="navbar-cart-container">
           <span class="navbar-cart-count"></span>
           <a class="navbar-link navbar-cart-link" href="/#/cart">
-              <svg class="navbar-cart-logo">
-                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-cart"></use>
-              </svg>
-            </a>
+            <svg class="navbar-cart-logo">
+              <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-cart"></use>
+            </svg>
+          </a>
         </div>
       </div>
     </div>
@@ -158,7 +158,18 @@ export default {
       nickName: ''
     }
   },
+  mounted () {
+    this.checkLogin()
+  },
   methods: {
+    checkLogin () {
+      axios.get('/users/checkLogin').then(response => {
+        let res = response.data
+        if (res.status === '0') {
+          this.nickName = res.result
+        }
+      })
+    },
     login () {
       if (!this.userName || !this.userPwd) {
         this.errorTip = true
@@ -175,6 +186,14 @@ export default {
           this.nickName = res.result.userName
         } else {
           this.errorTip = true
+        }
+      })
+    },
+    logout () {
+      axios.post('/users/logout').then(response => {
+        let res = response.data
+        if (res.status === '0') {
+          this.nickName = ''
         }
       })
     }
