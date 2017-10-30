@@ -60,16 +60,16 @@
         <div class="addr-list-wrap">
           <div class="addr-list">
             <ul>
-              <li v-for="(item,index) in addressListFilter" :key="index" v-bind:class="{'check':checkIndex==index}" @click="checkIndex=index;selectedAddrId=item.addressId">
+              <li v-for="(item,index) in addressListFilter" :key="item.addressId" :class="{'check':checkIndex===index}" @click="checkIndex=index">
                 <dl>
                   <dt>{{item.userName}}</dt>
                   <dd class="address">{{item.streetName}}</dd>
                   <dd class="tel">{{item.tel}}</dd>
                 </dl>
                 <div class="addr-opration addr-del">
-                  <a href="javascript:;" class="addr-del-btn" @click="delAddressConfirm(item.addressId)">
-                        <svg class="icon icon-del"><use xlink:href="#icon-del"></use></svg>
-                      </a>
+                  <a href="javascript:;" class="addr-del-btn">
+                    <svg class="icon icon-del"><use xlink:href="#icon-del"></use></svg>
+                  </a>
                 </div>
                 <div class="addr-opration addr-set-default">
                   <a href="javascript:;" class="addr-set-default-btn" v-if="!item.isDefault" @click="setDefault(item.addressId)"><i>Set default</i></a>
@@ -88,13 +88,13 @@
           </div>
 
           <div class="shipping-addr-more">
-            <a class="addr-more-btn up-down-btn" href="javascript:;" @click="expand" v-bind:class="{'open':limit>3}">
-                  more
-                  <i class="i-up-down">
-                    <i class="i-up-down-l"></i>
-                    <i class="i-up-down-r"></i>
-                  </i>
-                </a>
+            <a class="addr-more-btn up-down-btn" href="javascript:;" @click="expand" :class="{'open':limit>3}">
+                more
+                <i class="i-up-down">
+                  <i class="i-up-down-l"></i>
+                  <i class="i-up-down-r"></i>
+                </i>
+            </a>
           </div>
         </div>
 
@@ -115,9 +115,9 @@
             </ul>
           </div>
         </div>
-        <div class="next-btn-wrap">
-          <router-link class="btn btn--m btn--red" v-bind:to="{path:'orderConfirm',query:{'addressId':selectedAddrId}}">Next</router-link>
-        </div>
+        <!-- <div class="next-btn-wrap">
+          <router-link class="btn btn--m btn--red">Next</router-link>
+        </div> -->
       </div>
     </div>
   </div>
@@ -144,27 +144,54 @@ import NavFooter from './../components/NavFooter'
 import NavBread from './../components/NavBread'
 import Modal from './../components/Modal'
 // import {currency} from './../util/currency'
-// import axios from 'axios'
+import axios from 'axios'
 export default {
   data () {
     return {
-
+      limit: 3,
+      checkIndex: 0,
+      addressList: []
     }
   },
-  // mounted(){
-  //     this.init();
-  // },
-  // computed:{
-  //   addressListFilter(){
-  //     return this.addressList.slice(0,this.limit);
-  //   }
-  // },
+  mounted () {
+    this.init()
+  },
+  computed: {
+    addressListFilter () {
+      return this.addressList.slice(0, this.limit)
+    }
+  },
   components: {
     NavHeader,
     NavFooter,
     NavBread,
     Modal
+  },
+  methods: {
+    init () {
+      axios.get('/users/addressList').then(response => {
+        let res = response.data
+        this.addressList = res.result
+      })
+    },
+    expand () {
+      if (this.limit === 3) {
+        this.limit = this.addressList.length
+      } else {
+        this.limit = 3
+      }
+    },
+    setDefault (addressId) {
+      axios.post('/users/setDefault', {
+        addressId: addressId
+      }).then(response => {
+        let res = response.data
+        if (res.status === '0') {
+          console.log('success')
+          this.init()
+        }
+      })
+    }
   }
-  // methods: {}
 }
 </script>
