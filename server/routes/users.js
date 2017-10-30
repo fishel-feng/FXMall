@@ -8,21 +8,21 @@ router.post('/login', function (req, res, next) {
     userName: req.body.userName,
     userPwd: req.body.userPwd
   }
-  User.findOne(param, (err,doc)=>{
-    if(err){
+  User.findOne(param, (err, doc) => {
+    if (err) {
       res.json({
         status: '1',
         msg: err.message
       });
-    }else{
-      if(doc){
+    } else {
+      if (doc) {
         res.cookie('userId', doc.userId, {
           path: '/',
-          maxAge: 1000*60*60
+          maxAge: 1000 * 60 * 60
         });
         res.cookie('userName', doc.userName, {
           path: '/',
-          maxAge: 1000*60*60
+          maxAge: 1000 * 60 * 60
         });
         // req.session.user = doc;
         res.json({
@@ -37,7 +37,7 @@ router.post('/login', function (req, res, next) {
   });
 });
 
-router.post('/logout',(req,res,next)=>{
+router.post('/logout', (req, res, next) => {
   res.cookie('userId', '', {
     path: '/',
     maxAge: -1
@@ -49,20 +49,71 @@ router.post('/logout',(req,res,next)=>{
   });
 });
 
-router.get('/checkLogin',(req,res,next)=>{
-  if(req.cookies.userId){
+router.get('/checkLogin', (req, res, next) => {
+  if (req.cookies.userId) {
     res.json({
       status: '0',
       msg: '',
       result: req.cookies.userName || ''
     });
-  }else{
+  } else {
     res.json({
       status: '1',
       msg: 'no login',
       result: ''
     });
   }
+});
+
+router.get('/cartList', (req, res, next) => {
+  let userId = req.cookies.userId;
+  User.findOne({
+    userId: userId
+  }, (err, doc) => {
+    if (err) {
+      res.json({
+        status: '1',
+        msg: err.message,
+        result: ''
+      });
+    } else {
+      if (doc) {
+        res.json({
+          status: '0',
+          msg: '',
+          result: doc.cartList
+        });
+      }
+    }
+  });
+});
+
+router.post('/cartDel', (req, res, next) => {
+  let userId = req.cookies.userId,
+    productId = req.body.productId;
+  User.update({
+    userId: userId
+  }, {
+    $pull: {
+      'cartList': {
+        'productId': productId
+      }
+    }
+  }, (err,doc)=>{
+    if(err){
+      res.json({
+        status: '1',
+        msg: err.message,
+        result: ''
+      });
+    }else{
+      res.json({
+        status: '0',
+        msg: '',
+        result: 'success'
+      });
+    }
+  });
 });
 
 module.exports = router;

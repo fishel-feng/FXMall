@@ -58,24 +58,24 @@
             </ul>
           </div>
           <ul class="cart-item-list">
-            <li v-for="(item,index) in cartList" :key="index">
+            <li v-for="(item,index) in cartList" :key="item.productId">
               <div class="cart-tab-1">
                 <div class="cart-item-check">
-                  <a href="javascipt:;" class="checkbox-btn item-check-btn" v-bind:class="{'check':item.checked=='1'}" @click="editCart('checked',item)">
+                  <a href="javascipt:;" class="checkbox-btn item-check-btn" :class="{'check':item.checked=='1'}" @click="editCart('checked',item)">
                       <svg class="icon icon-ok">
                         <use xlink:href="#icon-ok"></use>
                       </svg>
                     </a>
                 </div>
                 <div class="cart-item-pic">
-                  <img v-lazy="'/static/'+item.productImage" v-bind:alt="item.productName">
+                  <img v-lazy="'/static/'+item.productImage" :alt="item.productName">
                 </div>
                 <div class="cart-item-title">
                   <div class="item-name">{{item.productName}}</div>
                 </div>
               </div>
               <div class="cart-tab-2">
-                <div class="item-price">{{item.salePrice|currency('$')}}</div>
+                <div class="item-price">{{item.salePrice}}</div>
               </div>
               <div class="cart-tab-3">
                 <div class="item-quantity">
@@ -89,11 +89,11 @@
                 </div>
               </div>
               <div class="cart-tab-4">
-                <div class="item-price-total">{{(item.productNum*item.salePrice)|currency('$')}}</div>
+                <div class="item-price-total">{{(item.productNum*item.salePrice)}}</div>
               </div>
               <div class="cart-tab-5">
                 <div class="cart-item-opration">
-                  <a href="javascript:;" class="item-edit-btn" @click="delCartConfirm(item)">
+                  <a href="javascript:;" class="item-edit-btn" @click="delCartConfirm(item.productId)">
                       <svg class="icon icon-del">
                         <use xlink:href="#icon-del"></use>
                       </svg>
@@ -108,8 +108,8 @@
         <div class="cart-foot-inner">
           <div class="cart-foot-l">
             <div class="item-all-check">
-              <a href="javascipt:;" @click="toggleCheckAll">
-                  <span class="checkbox-btn item-check-btn" v-bind:class="{'check':checkAllFlag}">
+              <a href="javascipt:;">
+                  <span class="checkbox-btn item-check-btn">
                       <svg class="icon icon-ok"><use xlink:href="#icon-ok"/></svg>
                   </span>
                   <span>Select all</span>
@@ -118,10 +118,10 @@
           </div>
           <div class="cart-foot-r">
             <div class="item-total">
-              Item total: <span class="total-price">{{totalPrice|currency('$')}}</span>
+              Item total: <span class="total-price"></span>
             </div>
             <div class="btn-wrap">
-              <a class="btn btn--red" v-bind:class="{'btn--dis':checkedCount==0}" @click="checkOut">Checkout</a>
+              <a class="btn btn--red">Checkout</a>
             </div>
           </div>
         </div>
@@ -173,13 +173,14 @@ import NavFooter from './../components/NavFooter'
 import NavBread from './../components/NavBread'
 import Modal from './../components/Modal'
 // import {currency} from './../util/currency'
-// import axios from 'axios'
+import axios from 'axios'
 export default {
   data () {
     return {
       cartList: [],
       delItem: {},
-      modalConfirm: false
+      modalConfirm: false,
+      productId: ''
     }
   },
   mounted () {
@@ -192,7 +193,30 @@ export default {
     Modal
   },
   methods: {
-
+    init () {
+      axios.get('/users/cartList').then(response => {
+        let res = response.data
+        this.cartList = res.result
+      })
+    },
+    closeModal () {
+      this.modalConfirm = false
+    },
+    delCartConfirm (productId) {
+      this.productId = productId
+      this.modalConfirm = true
+    },
+    delCart () {
+      axios.post('/users/cartDel', {
+        productId: this.productId
+      }).then(response => {
+        let res = response.data
+        if (res.status === '0') {
+          this.modalConfirm = false
+          this.init()
+        }
+      })
+    }
   }
 }
 </script>
