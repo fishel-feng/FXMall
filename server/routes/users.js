@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+require('./../util/util');
 
 const User = require('./../models/user')
 
@@ -262,17 +263,80 @@ router.post('/delAddress', (req, res, next) => {
       }
     }
   }, (err, doc) => {
-    if(err){
+    if (err) {
       res.json({
         status: '1',
         msg: err.message,
         result: ''
       });
-    }else{
+    } else {
       res.json({
         status: '0',
         msg: '',
         result: ''
+      });
+    }
+  });
+});
+
+router.post('/payMent', (req, res, next) => {
+  let userId = req.cookies.userId,
+    addressId = req.body.addressId,
+    orderTotal = req.body.orderTotal;
+  User.findOne({
+    userId: userId
+  }, (err, doc) => {
+    if (err) {
+      res.json({
+        status: '1',
+        msg: err.message,
+        result: ''
+      });
+    } else {
+      let address = '',
+        goodsList = [];
+      doc.addressList.forEach(item => {
+        if (addressId === item.addressId) {
+          address = item;
+        }
+      });
+      doc.cartList.filter(item => {
+        if (item.checked === '1') {
+          goodsList.push(item);
+        }
+      });
+      let platform = '622';
+      let random1 = Math.floor(Math.random() * 10);
+      let random2 = Math.floor(Math.random() * 10);
+      let sysDate = new Date().Format('yyyyMMddhhmmss');
+      let createDate = new Date().Format('yyyy-MM-dd hh:mm:ss');
+      let orderId = platform + random1 + sysDate + random2;
+      const order = {
+        orderId: orderId,
+        orderTotal: orderTotal,
+        addressInfo: address,
+        goodsList: goodsList,
+        orderStatus: '1',
+        createDate: createDate
+      };
+      doc.orderList.push(order);
+      doc.save((err1, doc1) => {
+        if (err1) {
+          res.json({
+            status: '1',
+            msg: err1.message,
+            result: ''
+          });
+        } else {
+          res.json({
+            status: '0',
+            msg: '',
+            result: {
+              orderId: order.orderId,
+              orderTotal: order.orderTotal
+            }
+          });
+        }
       });
     }
   });

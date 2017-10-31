@@ -55,7 +55,7 @@
             </ul>
           </div>
           <ul class="cart-item-list">
-            <li v-for="(item,index) in cartList" :key="index" v-if="item.checked=='1'">
+            <li v-for="item in cartList" :key="item.productId" v-if="item.checked==='1'">
               <div class="cart-tab-1">
                 <div class="cart-item-pic">
                   <img v-lazy="'/static/'+item.productImage" :alt="item.productName">
@@ -132,32 +132,57 @@
 import NavHeader from './../components/NavHeader'
 import NavFooter from './../components/NavFooter'
 import NavBread from './../components/NavBread'
-// import {currency} from './../util/currency'
-// import axios from 'axios'
+import {currency} from './../util/currency'
+import axios from 'axios'
 export default {
   data () {
     return {
-      // shipping: 100,
-      // discount: 200,
-      // tax: 400,
-      // subTotal: 0,
-      // orderTotal: 0,
-      // cartList: []
+      shipping: 100,
+      discount: 200,
+      tax: 400,
+      subTotal: 0,
+      orderTotal: 0,
+      cartList: []
     }
   },
-  // mounted() {
-  //   this.init();
-  // },
+  mounted () {
+    this.init()
+  },
   components: {
     NavHeader,
     NavFooter,
     NavBread
+  },
+  filters: {
+    currency: currency
+  },
+  methods: {
+    init () {
+      axios.get('/users/cartList').then(response => {
+        let res = response.data
+        this.cartList = res.result
+        this.cartList.forEach(item => {
+          if (item.checked === '1') {
+            this.subTotal += item.salePrice * item.productNum
+          }
+        })
+        this.orderTotal = this.subTotal + this.shipping - this.discount + this.tax
+      })
+    },
+    payMent () {
+      let addressId = this.$route.query.addressId
+      axios.post('/users/payMent', {
+        addressId: addressId,
+        orderTotal: this.orderTotal
+      }).then(response => {
+        let res = response.data
+        if (res.status === '0') {
+          this.$router.push({
+            path: '/orderSuccess?orderId=' + res.result.orderId
+          })
+        }
+      })
+    }
   }
-  // filters: {
-  //   currency: currency
-  // },
-  // methods: {
-
-  // }
 }
 </script>
