@@ -88,10 +88,6 @@
 </template>
 
 <script>
-import './../assets/css/login.css'
-import './../assets/css/product.css'
-import './../assets/css/checkout.css'
-import './../assets/css/base.css'
 import NavHeader from '@/components/NavHeader.vue'
 import NavFooter from '@/components/NavFooter.vue'
 import NavBread from '@/components/NavBread.vue'
@@ -187,9 +183,9 @@ export default {
       axios.post('/goods/addCart', {
         productId: productId
       }).then(res => {
-        // console.log(res)
         if (res.data.status === '0') {
           this.mdShowCart = true
+          this.$store.commit('updateCartCount', 1)
         } else {
           this.mdShow = true
         }

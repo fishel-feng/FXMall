@@ -66,6 +66,34 @@ router.get('/checkLogin', (req, res, next) => {
   }
 });
 
+router.get('/getCartCount', (req, res, next) => {
+  if (req.cookies && req.cookies.userId) {
+    let userId = req.cookies.userId;
+    User.findOne({
+      userId: userId
+    }, (err, doc) => {
+      if (err) {
+        res.json({
+          status: '1',
+          msg: err.message,
+          result: ''
+        });
+      } else {
+        let cartList = doc.cartList;
+        let cartCount = 0;
+        cartList.map(item => {
+          cartCount += parseInt(item.productNum);
+        });
+        res.json({
+          status: '0',
+          msg: '',
+          result: cartCount
+        });
+      }
+    });
+  }
+});
+
 router.get('/cartList', (req, res, next) => {
   let userId = req.cookies.userId;
   User.findOne({
@@ -338,6 +366,54 @@ router.post('/payMent', (req, res, next) => {
           });
         }
       });
+    }
+  });
+});
+
+router.get('/orderDetail', (req, res, next) => {
+  let userId = req.cookies.userId,
+    orderId = req.param('orderId');
+  User.findOne({
+    userId: userId
+  }, (err, userInfo) => {
+    if (err) {
+      res.json({
+        status: '1',
+        msg: err.message,
+        result: ''
+      });
+    } else {
+      let orderList = userInfo.orderList;
+      if (orderList.length > 0) {
+        let orderTotal = 0;
+        orderList.forEach(item => {
+          if (item.orderId === orderId) {
+            orderTotal = item.orderTotal;
+          }
+        });
+        if (orderTotal > 0) {
+          res.json({
+            status: '0',
+            msg: '',
+            result: {
+              orderId: orderId,
+              orderTotal: orderTotal
+            }
+          });
+        } else {
+          res.json({
+            status: '12002',
+            msg: 'no find order',
+            result: ''
+          });
+        }
+      } else {
+        res.json({
+          status: '12001',
+          msg: 'no order',
+          result: ''
+        });
+      }
     }
   });
 });
