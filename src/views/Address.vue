@@ -130,6 +130,14 @@
       <a class="btn btn--m btn--red" href="javascript:;" @click="isMdShow=false">取消</a>
     </div>
   </modal>
+  <modal :mdShow="isMdShow2" @close="isMdShow2=false">
+    <p slot="message">
+      无法删除最后一条地址信息
+    </p>
+    <div slot="btnGroup">
+      <a class="btn btn--m btn--red" href="javascript:;" @click="isMdShow2=false">确定</a>
+    </div>
+  </modal>
   <nav-footer></nav-footer>
 </div>
 </template>
@@ -153,7 +161,8 @@ export default {
       addressList: [],
       isMdShow: false,
       addressId: '',
-      selectedAddrId: ''
+      selectedAddrId: '',
+      isMdShow2: false
     }
   },
   mounted () {
@@ -199,8 +208,12 @@ export default {
       this.isMdShow = false
     },
     delAddressConfirm (addressId) {
-      this.isMdShow = true
-      this.addressId = addressId
+      if (this.addressList.length > 1) {
+        this.isMdShow = true
+        this.addressId = addressId
+      } else {
+        this.isMdShow2 = true
+      }
     },
     delAddress () {
       axios.post('/users/delAddress', {

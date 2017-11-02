@@ -33,6 +33,12 @@ router.post('/login', function (req, res, next) {
             userName: doc.userName
           }
         });
+      }else{
+        res.json({
+          status: '1',
+          msg: 'wrong user or password',
+          result: ''
+        });
       }
     }
   });
